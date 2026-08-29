@@ -1,0 +1,21 @@
+send_command:
+  name: Send raw command
+  description: >-
+    Debug tool. Writes a raw ASCII command string to the fridge's write
+    characteristic (FFF1). Used to reverse-engineer the ECO / lock /
+    battery-protection commands, which are not known for this firmware.
+    Watch the debug log for the status frames that follow.
+  fields:
+    command:
+      name: Command
+      description: 'ASCII command, e.g. /S01/1/002'
+      required: true
+      example: "/S01/1/002"
+      selector:
+        text:
+    newline:
+      name: Append newline
+      description: Append a trailing newline (the fridge expects one).
+      default: true
+      selector:
+        boolean:

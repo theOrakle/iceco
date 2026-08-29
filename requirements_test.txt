@@ -1,0 +1,12 @@
+pytest-homeassistant-custom-component
+pytest>=7.0
+pytest-cov
+ruff
+
+# Transitive deps pulled in when HA's bluetooth/usb components import during
+# test collection — not declared by pytest-homeassistant-custom-component.
+aiousbwatcher
+pyserial
+pyudev
+serialx
+bleak>=0.21.0
