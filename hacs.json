@@ -1,5 +1,13 @@
 {
-  "name": "Iceco Refrigerator",
-  "render_readme": true,
-  "homeassistant": "2024.8.0"
+  "name": "Iceco",
+  "domains": [
+    "binary_sensor",
+    "climate",
+    "select",
+    "sensor",
+    "switch"
+  ],
+  "homeassistant": "2024.8.0",
+  "iot_class": "local_push",
+  "render_readme": true
 }
