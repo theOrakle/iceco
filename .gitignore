@@ -67,6 +67,5 @@ home-assistant.log
 home-assistant_v2.db
 OZW_Log.txt
 .venv-test/
-ble-iceco-s00-0l.patch
 .venv/
 ble-iceco-s00-0l.patch

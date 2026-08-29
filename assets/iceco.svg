@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Iceco">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2aa9e0"/>
+      <stop offset="100%" stop-color="#0f5f8a"/>
+    </linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dceefb"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="40" fill="url(#bg)"/>
+
+  <!-- dual-zone cooler body -->
+  <g stroke="#0b3b57" stroke-width="6" stroke-linejoin="round">
+    <rect x="60" y="46" width="136" height="164" rx="16" fill="url(#door)"/>
+    <line x1="60" y1="118" x2="196" y2="118"/>
+    <line x1="150" y1="60" x2="150" y2="104" stroke-linecap="round"/>
+    <line x1="150" y1="132" x2="150" y2="196" stroke-linecap="round"/>
+  </g>
+
+  <!-- snowflake -->
+  <g stroke="#2aa9e0" stroke-width="7" stroke-linecap="round" transform="translate(105 163)">
+    <line x1="0" y1="-22" x2="0" y2="22"/>
+    <line x1="-19" y1="-11" x2="19" y2="11"/>
+    <line x1="-19" y1="11" x2="19" y2="-11"/>
+    <g stroke-width="5">
+      <path d="M0 -22 l-7 7 M0 -22 l7 7 M0 22 l-7 -7 M0 22 l7 -7"/>
+      <path d="M-19 -11 l1 -10 M-19 -11 l-9 -3 M19 11 l-1 10 M19 11 l9 3"/>
+      <path d="M-19 11 l-9 3 M-19 11 l1 10 M19 -11 l9 -3 M19 -11 l-1 -10"/>
+    </g>
+  </g>
+</svg>
