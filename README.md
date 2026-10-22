@@ -1,7 +1,7 @@
 # Iceco for Home Assistant
 
 <p align="center">
-  <img src="assets/iceco.svg" alt="Iceco" width="120" />
+  <img src="assets/iceco.png" alt="ICECO" width="120" />
 </p>
 
 Home Assistant integration for Iceco portable dual-zone Bluetooth refrigerators.
