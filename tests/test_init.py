@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
+from homeassistant.setup import async_setup_component
 
 import pytest
 
@@ -85,3 +86,35 @@ class TestUnloadEntry:
         assert mock_config_entry.state == ConfigEntryState.NOT_LOADED
         # HA returns True when unloading an entry that was never loaded (no-op)
         assert result is True
+
+
+# ---------------------------------------------------------------------------
+# Actions
+# ---------------------------------------------------------------------------
+
+
+class TestDebugService:
+    async def test_service_registered_once_at_component_setup(self, hass):
+        """The action exists as soon as the integration is set up, with no entry loaded."""
+        assert await async_setup_component(hass, DOMAIN, {})
+        assert hass.services.has_service(DOMAIN, "send_command")
+
+    async def test_service_without_fridge_raises(self, hass):
+        await async_setup_component(hass, DOMAIN, {})
+        with pytest.raises(ServiceValidationError):
+            await hass.services.async_call(
+                DOMAIN, "send_command", {"command": "/S01/1/002"}, blocking=True
+            )
+
+    async def test_service_sends_to_loaded_fridge(self, hass, mock_config_entry):
+        await async_setup_component(hass, DOMAIN, {})
+        mock_config_entry.add_to_hass(hass)
+        coordinator = MagicMock()
+        coordinator.async_send_raw_command = AsyncMock()
+        mock_config_entry.runtime_data = coordinator
+
+        await hass.services.async_call(
+            DOMAIN, "send_command", {"command": "/S01/1/002"}, blocking=True
+        )
+
+        coordinator.async_send_raw_command.assert_awaited_once_with(b"/S01/1/002\n")

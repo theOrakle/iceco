@@ -14,12 +14,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_SET_TEMPERATURE,
     CONF_DEVICE_ADDRESS,
-    DOMAIN,
     ENTITY_CLIMATE_LEFT,
     ENTITY_CLIMATE_RIGHT,
     MAX_TEMP,
@@ -27,7 +25,7 @@ from .const import (
     TEMP_STEP,
 )
 from .coordinator import IcecoDataUpdateCoordinator
-from .helpers import build_device_info
+from .entity import IcecoEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +46,7 @@ async def async_setup_entry(
     )
 
 
-class IcecoClimate(CoordinatorEntity[IcecoDataUpdateCoordinator], ClimateEntity):
+class IcecoClimate(IcecoEntity, ClimateEntity):
     """Climate entity for Iceco temperature zone."""
 
     _attr_has_entity_name = True
@@ -68,15 +66,13 @@ class IcecoClimate(CoordinatorEntity[IcecoDataUpdateCoordinator], ClimateEntity)
         zone: str,
     ) -> None:
         """Initialize the climate entity."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
 
         self._zone = zone
         self._attr_unique_id = (
             f"{entry.data[CONF_DEVICE_ADDRESS]}_{ENTITY_CLIMATE_LEFT if zone == 'left' else ENTITY_CLIMATE_RIGHT}"
         )
         self._attr_name = f"{zone.capitalize()} Zone"
-
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def current_temperature(self) -> float | None:

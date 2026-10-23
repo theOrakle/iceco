@@ -1,0 +1,114 @@
+# Home Assistant Integration Quality Scale tracking
+# https://developers.home-assistant.io/docs/core/integration-quality-scale/
+rules:
+  # Bronze
+  action-setup:
+    status: done
+    comment: "iceco.send_command is registered in async_setup."
+  appropriate-polling:
+    status: done
+    comment: "The fridge pushes status over Bluetooth; the poll interval only checks connection health and is configurable."
+  brands:
+    status: exempt
+    comment: "Custom integration: the brands repository no longer accepts new custom integrations. Icons and logos ship in the integration's brand/ folder, which Home Assistant 2026.3+ uses."
+  common-modules:
+    status: done
+    comment: "coordinator.py and entity.py"
+  config-flow: done
+  config-flow-test-coverage: done
+  dependency-transparency: done
+  docs-actions:
+    status: done
+    comment: "Documented in the README (debug action)."
+  docs-conditions:
+    status: exempt
+    comment: "The integration provides no conditions or triggers."
+  docs-high-level-description: done
+  docs-installation-instructions: done
+  docs-removal-instructions: done
+  docs-triggers:
+    status: exempt
+    comment: "The integration provides no conditions or triggers."
+  entity-event-setup:
+    status: exempt
+    comment: "Entities are driven by the coordinator, not by their own event subscriptions."
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure:
+    status: done
+    comment: "Discovered devices are already advertising; a typed address must be reachable by a Bluetooth adapter."
+  test-before-setup: done
+  unique-config-entry: done
+  # Silver
+  action-exceptions:
+    status: todo
+  config-entry-unloading: done
+  docs-configuration-parameters:
+    status: todo
+  docs-installation-parameters:
+    status: todo
+  entity-unavailable: done
+  integration-owner: done
+  log-when-unavailable:
+    status: done
+    comment: "DataUpdateCoordinator logs the first failure and the recovery."
+  parallel-updates:
+    status: todo
+  reauthentication-flow:
+    status: exempt
+    comment: "Bluetooth pairing needs no credentials."
+  test-coverage:
+    status: todo
+  # Gold
+  devices: done
+  diagnostics:
+    status: todo
+  discovery:
+    status: done
+    comment: "Bluetooth discovery by service UUID and manufacturer ID."
+  discovery-update-info:
+    status: todo
+  docs-data-update:
+    status: todo
+  docs-examples:
+    status: todo
+  docs-known-limitations:
+    status: todo
+  docs-supported-devices:
+    status: todo
+  docs-supported-functions:
+    status: todo
+  docs-troubleshooting:
+    status: todo
+  docs-use-cases:
+    status: todo
+  dynamic-devices:
+    status: todo
+  entity-category:
+    status: todo
+  entity-device-class:
+    status: todo
+  entity-disabled-by-default:
+    status: todo
+  entity-translations:
+    status: todo
+  exception-translations:
+    status: todo
+  icon-translations:
+    status: todo
+  reconfiguration-flow:
+    status: todo
+  repair-issues:
+    status: todo
+  stale-devices:
+    status: todo
+  # Platinum
+  async-dependency:
+    status: done
+    comment: "bleak is asyncio based."
+  inject-websession:
+    status: exempt
+    comment: "Uses Bluetooth, not HTTP."
+  strict-typing:
+    status: todo

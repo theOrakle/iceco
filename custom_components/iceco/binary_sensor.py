@@ -11,7 +11,6 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_CURRENT_TEMPERATURE,
@@ -25,7 +24,6 @@ from .const import (
     CONF_TEMP_DEVIATION_THRESHOLD,
     DEFAULT_POWER_LOSS_TIMEOUT,
     DEFAULT_TEMP_DEVIATION_THRESHOLD,
-    DOMAIN,
     ENTITY_LOW_BATTERY,
     ENTITY_POWER_LOSS_ALARM,
     ENTITY_TEMP_ALARM_LEFT,
@@ -33,7 +31,7 @@ from .const import (
     battery_thresholds,
 )
 from .coordinator import IcecoDataUpdateCoordinator
-from .helpers import build_device_info
+from .entity import IcecoEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,7 +55,7 @@ async def async_setup_entry(
 
 
 class IcecoPowerLossAlarm(
-    CoordinatorEntity[IcecoDataUpdateCoordinator], BinarySensorEntity
+    IcecoEntity, BinarySensorEntity
 ):
     """Binary sensor for power loss / offline alarm."""
 
@@ -70,13 +68,11 @@ class IcecoPowerLossAlarm(
         entry: ConfigEntry,
     ) -> None:
         """Initialize the binary sensor."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
 
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ADDRESS]}_{ENTITY_POWER_LOSS_ALARM}"
         self._attr_name = "Power Loss Alarm"
         self._entry = entry
-
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def is_on(self) -> bool:
@@ -105,7 +101,7 @@ class IcecoPowerLossAlarm(
 
 
 class IcecoLowBattery(
-    CoordinatorEntity[IcecoDataUpdateCoordinator], BinarySensorEntity
+    IcecoEntity, BinarySensorEntity
 ):
     """On when the supply voltage is at/below the compressor cut-out for the
     active battery-protection level (fridge has or is about to shut the
@@ -120,10 +116,9 @@ class IcecoLowBattery(
         entry: ConfigEntry,
     ) -> None:
         """Initialize the binary sensor."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ADDRESS]}_{ENTITY_LOW_BATTERY}"
         self._attr_name = "Low Battery"
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def is_on(self) -> bool | None:
@@ -165,7 +160,7 @@ class IcecoLowBattery(
         )
 
 
-class IcecoTempAlarm(CoordinatorEntity[IcecoDataUpdateCoordinator], BinarySensorEntity):
+class IcecoTempAlarm(IcecoEntity, BinarySensorEntity):
     """Binary sensor for temperature deviation alarm."""
 
     _attr_has_entity_name = True
@@ -178,7 +173,7 @@ class IcecoTempAlarm(CoordinatorEntity[IcecoDataUpdateCoordinator], BinarySensor
         zone: str,
     ) -> None:
         """Initialize the binary sensor."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
 
         self._zone = zone
         self._entry = entry
@@ -186,8 +181,6 @@ class IcecoTempAlarm(CoordinatorEntity[IcecoDataUpdateCoordinator], BinarySensor
         entity_id = ENTITY_TEMP_ALARM_LEFT if zone == "left" else ENTITY_TEMP_ALARM_RIGHT
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ADDRESS]}_{entity_id}"
         self._attr_name = f"{zone.capitalize()} Zone Temperature Alarm"
-
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def is_on(self) -> bool:

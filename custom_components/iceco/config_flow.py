@@ -9,6 +9,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
+    async_ble_device_from_address,
     async_discovered_service_info,
 )
 from homeassistant.const import CONF_ADDRESS
@@ -116,6 +117,7 @@ class IcecoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle user-initiated setup."""
+        errors: dict[str, str] = {}
         if user_input is not None:
             address = user_input[CONF_ADDRESS]
 
@@ -123,10 +125,14 @@ class IcecoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(address)
             self._abort_if_unique_id_configured()
 
-            return self.async_create_entry(
-                title=f"Iceco Refrigerator ({address})",
-                data={CONF_DEVICE_ADDRESS: address},
-            )
+            # A typed-in address must belong to a fridge a Bluetooth adapter can
+            # currently reach, the BLE equivalent of testing a connection.
+            if async_ble_device_from_address(self.hass, address, connectable=True):
+                return self.async_create_entry(
+                    title=f"Iceco Refrigerator ({address})",
+                    data={CONF_DEVICE_ADDRESS: address},
+                )
+            errors["base"] = "cannot_connect"
 
         # Scan for devices
         self._discovered_devices = list(
@@ -145,7 +151,14 @@ class IcecoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # No devices found, ask for manual entry
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required(CONF_ADDRESS): str}),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_ADDRESS, default=(user_input or {}).get(CONF_ADDRESS, "")
+                    ): str
+                }
+            ),
+            errors=errors,
         )
 
     async def async_step_select_device(

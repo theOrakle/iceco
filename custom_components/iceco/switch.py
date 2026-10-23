@@ -9,7 +9,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CONF_DEVICE_ADDRESS,
@@ -17,7 +16,7 @@ from .const import (
     ENTITY_POWER_SWITCH,
 )
 from .coordinator import IcecoDataUpdateCoordinator
-from .helpers import build_device_info
+from .entity import IcecoEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +42,7 @@ async def async_setup_entry(
     )
 
 
-class IcecoPowerSwitch(CoordinatorEntity[IcecoDataUpdateCoordinator], SwitchEntity):
+class IcecoPowerSwitch(IcecoEntity, SwitchEntity):
     """Fridge display + compressor power."""
 
     _attr_has_entity_name = True
@@ -55,12 +54,10 @@ class IcecoPowerSwitch(CoordinatorEntity[IcecoDataUpdateCoordinator], SwitchEnti
         entry: ConfigEntry,
     ) -> None:
         """Initialize the switch."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
 
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ADDRESS]}_{ENTITY_POWER_SWITCH}"
         self._attr_name = "Power"
-
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def is_on(self) -> bool | None:
@@ -89,7 +86,7 @@ class IcecoPowerSwitch(CoordinatorEntity[IcecoDataUpdateCoordinator], SwitchEnti
         )
 
 
-class IcecoConnectionSwitch(CoordinatorEntity[IcecoDataUpdateCoordinator], SwitchEntity):
+class IcecoConnectionSwitch(IcecoEntity, SwitchEntity):
     """HA's BLE link to the fridge — turn off to let the Iceco app connect."""
 
     _attr_has_entity_name = True
@@ -103,12 +100,10 @@ class IcecoConnectionSwitch(CoordinatorEntity[IcecoDataUpdateCoordinator], Switc
         entry: ConfigEntry,
     ) -> None:
         """Initialize the switch."""
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
 
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ADDRESS]}_{ENTITY_CONNECTION}"
         self._attr_name = "BLE Connection"
-
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def is_on(self) -> bool:

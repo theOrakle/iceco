@@ -8,7 +8,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     BATTERY_PROTECTION_OPTIONS,
@@ -20,7 +19,7 @@ from .const import (
     MODE_OPTIONS,
 )
 from .coordinator import IcecoDataUpdateCoordinator
-from .helpers import build_device_info
+from .entity import IcecoEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ async def async_setup_entry(
     )
 
 
-class _IcecoSelect(CoordinatorEntity[IcecoDataUpdateCoordinator], SelectEntity):
+class _IcecoSelect(IcecoEntity, SelectEntity):
     """Base for the Iceco selects — all config-category, connected-only."""
 
     _attr_has_entity_name = True
@@ -54,9 +53,8 @@ class _IcecoSelect(CoordinatorEntity[IcecoDataUpdateCoordinator], SelectEntity):
         entry: ConfigEntry,
         suffix: str,
     ) -> None:
-        super().__init__(coordinator)
+        super().__init__(coordinator, entry)
         self._attr_unique_id = f"{entry.data[CONF_DEVICE_ADDRESS]}_{suffix}"
-        self._attr_device_info = build_device_info(entry.data[CONF_DEVICE_ADDRESS])
 
     @property
     def available(self) -> bool:

@@ -183,13 +183,74 @@ class TestManualFlowNoDevices:
                 context={"source": config_entries.SOURCE_USER},
             )
 
+        with patch(
+            "custom_components.iceco.config_flow.async_ble_device_from_address",
+            return_value=MagicMock(),
+        ):
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"],
+                user_input={"address": TEST_ADDRESS},
+            )
+
+        assert result["type"] == FlowResultType.CREATE_ENTRY
+        assert result["data"][CONF_DEVICE_ADDRESS] == TEST_ADDRESS
+
+    async def test_manual_entry_unreachable_device_errors_then_recovers(self, hass):
+        with patch(
+            "custom_components.iceco.config_flow.async_discovered_service_info",
+            return_value=[],
+        ):
+            result = await hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": config_entries.SOURCE_USER},
+            )
+
+        with patch(
+            "custom_components.iceco.config_flow.async_ble_device_from_address",
+            return_value=None,
+        ):
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"],
+                user_input={"address": TEST_ADDRESS},
+            )
+
+        assert result["type"] == FlowResultType.FORM
+        assert result["step_id"] == "user"
+        assert result["errors"] == {"base": "cannot_connect"}
+
+        with patch(
+            "custom_components.iceco.config_flow.async_ble_device_from_address",
+            return_value=MagicMock(),
+        ):
+            result = await hass.config_entries.flow.async_configure(
+                result["flow_id"],
+                user_input={"address": TEST_ADDRESS},
+            )
+
+        assert result["type"] == FlowResultType.CREATE_ENTRY
+
+    async def test_manual_entry_duplicate_aborts(self, hass):
+        MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_DEVICE_ADDRESS: TEST_ADDRESS},
+            unique_id=TEST_ADDRESS,
+        ).add_to_hass(hass)
+        with patch(
+            "custom_components.iceco.config_flow.async_discovered_service_info",
+            return_value=[],
+        ):
+            result = await hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": config_entries.SOURCE_USER},
+            )
+
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
             user_input={"address": TEST_ADDRESS},
         )
 
-        assert result["type"] == FlowResultType.CREATE_ENTRY
-        assert result["data"][CONF_DEVICE_ADDRESS] == TEST_ADDRESS
+        assert result["type"] == FlowResultType.ABORT
+        assert result["reason"] == "already_configured"
 
 
 # ---------------------------------------------------------------------------

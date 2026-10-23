@@ -97,3 +97,9 @@ Full field map and reverse-engineering notes: [PROTOCOL.md](PROTOCOL.md).
 - `f10` / `f11` in the status frame are unidentified (constant `0` / `000` so far).
 - `iceco.send_command` is a debug service that writes an arbitrary string to
   `FFF1` — for further reverse-engineering only.
+
+# Removing the integration
+
+1. Go to **Settings** → **Devices & services**, open **Iceco**, click the three-dot menu (⋮) next to the entry and choose **Delete**. The Iceco fridge entry, its devices and its entities are removed.
+2. If you installed through HACS, open **HACS**, find **Iceco**, click the three-dot menu (⋮) and choose **Remove**. For a manual install, delete the **custom_components/iceco** folder instead.
+3. Restart Home Assistant.

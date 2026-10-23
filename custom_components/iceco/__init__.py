@@ -9,6 +9,7 @@ from homeassistant.components import bluetooth
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 
@@ -22,6 +23,8 @@ SEND_COMMAND_SCHEMA = vol.Schema(
     {vol.Required("command"): cv.string, vol.Optional("newline", default=True): cv.boolean}
 )
 
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 PLATFORMS: list[Platform] = [
     Platform.CLIMATE,
     Platform.SENSOR,
@@ -29,6 +32,12 @@ PLATFORMS: list[Platform] = [
     Platform.SELECT,
     Platform.SWITCH,
 ]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Register integration-wide actions (once, not per config entry)."""
+    _register_debug_service(hass)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -65,8 +74,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Register update listener for options changes
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
-
-    _register_debug_service(hass)
 
     _LOGGER.info("Iceco integration setup complete")
     return True
